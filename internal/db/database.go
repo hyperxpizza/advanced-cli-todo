@@ -38,6 +38,19 @@ func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error)
 
 	db := Database{db: database, logger: logger}
 
+	//check if tables exist
+	_, err = database.Query(`select * from tasks`)
+	if err != nil {
+		if err.Error() == "no such table: tasks" {
+			db.logger.Debug("Required tables do not exist, creating")
+			if err = db.loadSchema(c.Database.Schema); err != nil {
+				return nil, err
+			}
+		} else {
+			return nil, err
+		}
+	}
+
 	logger.Debug("A new database object has been created")
 
 	return &db, nil
