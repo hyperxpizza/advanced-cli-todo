@@ -39,7 +39,7 @@ func TestReadDatabaseSchema(t *testing.T) {
 	data, err := common.ReadFile(*filePtr)
 	assert.NoError(t, err)
 
-	toCheck := "create table tasks ( id serial primary key unique not null, title varchar(100) not null, description text, created timestamp not null, updated timestamp not null);"
+	toCheck := "create table tasks ( id serial primary key unique not null, title varchar(100) not null, description text, done boolean not null, priority integer not null, dueDate timestamp, created timestamp not null, updated timestamp not null);"
 	assert.Equal(t, toCheck, string(data))
 
 }
