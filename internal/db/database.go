@@ -9,6 +9,8 @@ import (
 	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/customErrors"
 	"github.com/sirupsen/logrus"
+
+	_ "github.com/mattn/go-sqlite3"
 )
 
 type Database struct {
@@ -69,8 +71,9 @@ func (db *Database) loadSchema(schemaPath string) error {
 	if err != nil {
 		return err
 	}
-	sql := string(data)
-	stmt, err := db.db.Prepare(sql)
+	sqlData := string(data)
+	db.logger.Debugf("SQL to execute = %s", sqlData)
+	stmt, err := db.db.Prepare(sqlData)
 	if err != nil {
 		return err
 	}
