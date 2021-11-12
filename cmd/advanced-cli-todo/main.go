@@ -1,7 +1,9 @@
 package main
 
-import "fmt"
+import (
+	"github.com/hyperxpizza/advanced-cli-todo/internal/cli"
+)
 
 func main() {
-	fmt.Println("Hello World!")
+	cli.Run()
 }
