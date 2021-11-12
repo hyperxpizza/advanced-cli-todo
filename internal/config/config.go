@@ -9,7 +9,8 @@ import (
 
 type Config struct {
 	Database struct {
-		path string `yaml:"path"`
+		Path   string `yaml:"path"`
+		Schema string `yaml:"schema"`
 	} `yaml:"database"`
 }
 

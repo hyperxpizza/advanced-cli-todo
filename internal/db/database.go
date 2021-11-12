@@ -6,35 +6,38 @@ import (
 	"os"
 
 	"github.com/hyperxpizza/advanced-cli-todo/internal/common"
+	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/customErrors"
+	"github.com/sirupsen/logrus"
 )
 
 type Database struct {
-	db *sql.DB
+	db     *sql.DB
+	logger logrus.FieldLogger
 }
 
-func NewDatabase(path string) (*Database, error) {
+func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error) {
 
-	err := common.CheckIfFileExists(path)
+	err := common.CheckIfFileExists(c.Database.Path)
 	if err != nil {
-		if !errors.Is(err, customErrors.Wrap(customErrors.ErrFileNotFound)) {
+		if errors.Is(err, customErrors.Wrap(customErrors.ErrFileNotFound)) {
 			return nil, err
 		}
 		//if database file does not exist, create one
-		return createNewDB(path)
+		return createNewDB(c.Database.Path, c.Database.Schema, logger)
 	}
 
-	database, err := sql.Open("sqlite3", path)
+	database, err := sql.Open("sqlite3", c.Database.Path)
 	if err != nil {
 		return nil, err
 	}
 
-	db := Database{database}
+	db := Database{db: database, logger: logger}
 
 	return &db, nil
 }
 
-func createNewDB(path string) (*Database, error) {
+func createNewDB(path, schemaPath string, logger logrus.FieldLogger) (*Database, error) {
 	file, err := os.Create(path)
 	if err != nil {
 		return nil, err
@@ -47,16 +50,31 @@ func createNewDB(path string) (*Database, error) {
 		return nil, err
 	}
 
-	db := Database{database}
+	db := Database{db: database, logger: logger}
 	//load schema from file
-	if err = db.loadSchema(); err != nil {
+	if err = db.loadSchema(schemaPath); err != nil {
 		return nil, err
 	}
 
 	return &db, nil
 }
 
-func (db *Database) loadSchema() error {
+func (db *Database) loadSchema(schemaPath string) error {
+	data, err := common.ReadFile(schemaPath)
+	if err != nil {
+		return err
+	}
+	sql := string(data)
+	stmt, err := db.db.Prepare(sql)
+	if err != nil {
+		return err
+	}
+
+	_, err = stmt.Exec()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
