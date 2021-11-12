@@ -17,9 +17,11 @@ type Database struct {
 }
 
 func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error) {
+	logger.Debug("Initializing a new database connection")
 
 	err := common.CheckIfFileExists(c.Database.Path)
 	if err != nil {
+		logger.Debug("Database file not found")
 		if errors.Is(err, customErrors.Wrap(customErrors.ErrFileNotFound)) {
 			return nil, err
 		}
@@ -34,10 +36,13 @@ func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error)
 
 	db := Database{db: database, logger: logger}
 
+	logger.Debug("A new database object has been created")
+
 	return &db, nil
 }
 
 func createNewDB(path, schemaPath string, logger logrus.FieldLogger) (*Database, error) {
+	logger.Debug("Creating a new database file")
 	file, err := os.Create(path)
 	if err != nil {
 		return nil, err
