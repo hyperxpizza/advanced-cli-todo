@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 
@@ -31,16 +30,4 @@ func NewConfig(path string) (*Config, error) {
 	}
 
 	return config, nil
-}
-
-func validatePath(path string) error {
-	s, err := os.Stat(path)
-	if err != nil {
-		return err
-	}
-
-	if s.IsDir() {
-		return fmt.Errorf("'%s' is a directory, not a normal file", path)
-	}
-	return nil
 }
