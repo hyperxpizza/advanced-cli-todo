@@ -4,6 +4,7 @@ import (
 	"errors"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 
 	"github.com/hyperxpizza/advanced-cli-todo/internal/customErrors"
 )
@@ -29,4 +30,10 @@ func ReadFile(path string) ([]byte, error) {
 	}
 
 	return data, err
+}
+
+//Checks wether provided file is of the right extension
+func CheckFileExtension(path, extension string) bool {
+	ext := filepath.Ext(path)
+	return ext == extension
 }

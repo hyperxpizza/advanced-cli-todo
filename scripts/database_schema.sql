@@ -1,1 +1,1 @@
-create table tasks ();
+create table tasks ( id serial primary key unique not null, title varchar(100) not null, description text, created timestamp not null, updated timestamp not null);
