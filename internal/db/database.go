@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"os"
+	"sync"
 
 	"github.com/hyperxpizza/advanced-cli-todo/internal/common"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
@@ -16,6 +17,7 @@ import (
 type Database struct {
 	db     *sql.DB
 	logger logrus.FieldLogger
+	mutex  sync.Mutex
 }
 
 func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error) {
@@ -36,7 +38,7 @@ func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error)
 		return nil, err
 	}
 
-	db := Database{db: database, logger: logger}
+	db := Database{db: database, logger: logger, mutex: sync.Mutex{}}
 
 	//check if tables exist
 	_, err = database.Query(`select * from tasks`)
@@ -69,7 +71,7 @@ func createNewDB(path, schemaPath string, logger logrus.FieldLogger) (*Database,
 		return nil, err
 	}
 
-	db := Database{db: database, logger: logger}
+	db := Database{db: database, logger: logger, mutex: sync.Mutex{}}
 	//load schema from file
 	if err = db.loadSchema(schemaPath); err != nil {
 		return nil, err

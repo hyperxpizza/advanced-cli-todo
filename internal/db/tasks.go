@@ -14,10 +14,12 @@ func (db *Database) InsertTask(title, description string, priority int, due *tim
 		return 0, err
 	}
 
+	db.mutex.Lock()
 	res, err := stmt.Exec(title, description, false, priority, due, time.Now(), time.Now())
 	if err != nil {
 		return 0, err
 	}
+	db.mutex.Unlock()
 
 	id, err := res.LastInsertId()
 	if err != nil {
