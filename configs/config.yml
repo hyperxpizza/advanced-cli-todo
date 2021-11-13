@@ -1,7 +1,7 @@
 database:
   path: "/home/hyperxpizza/dev/golang/advanced-cli-todo/db/sqlite.db"
   schema: "/home/hyperxpizza/dev/golang/advanced-cli-todo/scripts/database_schema.sql"
-web:
-  host: 127.0.0.1
+api:
+  host: "127.0.0.1"
   port: 8888
-  mode: release
+  mode: "release"

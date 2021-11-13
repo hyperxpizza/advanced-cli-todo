@@ -33,7 +33,7 @@ func NewAPI(c *config.Config, logger logrus.FieldLogger) (*API, error) {
 
 //Runs the API router
 func (a *API) Run() {
-	setupAndRunRouter(a.c)
+	a.setupAndRunRouter(a.c)
 }
 
 func (a *API) ForceClose() {}

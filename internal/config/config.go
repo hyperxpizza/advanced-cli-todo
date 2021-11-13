@@ -12,6 +12,10 @@ type Config struct {
 		Path   string `yaml:"path"`
 		Schema string `yaml:"schema"`
 	} `yaml:"database"`
+	API struct {
+		Host string `yaml:"host"`
+		Port int    `yaml:"port"`
+	} `yaml:"api"`
 }
 
 func NewConfig(path string) (*Config, error) {
