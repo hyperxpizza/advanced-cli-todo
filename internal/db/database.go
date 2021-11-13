@@ -46,12 +46,11 @@ func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error)
 			if err = db.loadSchema(c.Database.Schema); err != nil {
 				return nil, err
 			}
+			logger.Debug("A new database object has been created")
 		} else {
 			return nil, err
 		}
 	}
-
-	logger.Debug("A new database object has been created")
 
 	return &db, nil
 }
