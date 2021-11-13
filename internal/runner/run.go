@@ -47,11 +47,13 @@ func (r *Runner) RunInDefaultMode() {
 
 //Running only cli
 func (r *Runner) RunCli() error {
+	r.logger.Info("Starting CLI mode...")
 	return nil
 }
 
 //Running only api
 func (r *Runner) RunAPI() error {
+	r.logger.Info("Starting API mode...")
 	return nil
 }
 
