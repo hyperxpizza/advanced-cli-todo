@@ -7,10 +7,13 @@ import (
 )
 
 type API struct {
-	db     *db.Database
-	logger logrus.FieldLogger
+	db           *db.Database
+	c            *config.Config
+	logger       logrus.FieldLogger
+	CloseChannel chan (bool)
 }
 
+//Initializes and returns a new API structure
 func NewAPI(c *config.Config, logger logrus.FieldLogger) (*API, error) {
 	var api API
 
@@ -21,7 +24,16 @@ func NewAPI(c *config.Config, logger logrus.FieldLogger) (*API, error) {
 	}
 
 	api.db = db
+	api.c = c
 	api.logger = logger
+	api.CloseChannel = make(chan bool)
 
 	return &api, nil
 }
+
+//Runs the API router
+func (a *API) Run() {
+	setupAndRunRouter(a.c)
+}
+
+func (a *API) ForceClose() {}

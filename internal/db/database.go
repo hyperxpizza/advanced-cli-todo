@@ -57,6 +57,7 @@ func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error)
 	return &db, nil
 }
 
+//Creates a new Database file
 func createNewDB(path, schemaPath string, logger logrus.FieldLogger) (*Database, error) {
 	logger.Debug("Creating a new database file")
 	file, err := os.Create(path)
@@ -80,6 +81,7 @@ func createNewDB(path, schemaPath string, logger logrus.FieldLogger) (*Database,
 	return &db, nil
 }
 
+//loads schema from sql file and executes it creating new tables
 func (db *Database) loadSchema(schemaPath string) error {
 	data, err := common.ReadFile(schemaPath)
 	if err != nil {
