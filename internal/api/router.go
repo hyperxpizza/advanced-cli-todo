@@ -8,8 +8,8 @@ import (
 )
 
 func (a *API) setupAndRunRouter(c *config.Config) {
+	gin.SetMode(gin.ReleaseMode)
 	router := gin.Default()
-	//gin.SetMode(c.API.Mode)
 	//use corse middleware
 	router.Use(a.corsMiddleware())
 

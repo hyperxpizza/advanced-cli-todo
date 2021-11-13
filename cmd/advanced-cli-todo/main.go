@@ -29,8 +29,11 @@ func main() {
 		os.Exit(1)
 	}
 
-	r := runner.NewRunner(c, logger)
-	defer r.Close()
+	r, err := runner.NewRunner(c, logger)
+	if err != nil {
+		logger.Fatal(err)
+		os.Exit(1)
+	}
 
 	switch *mode {
 	case "default":

@@ -11,15 +11,8 @@ type CLI struct {
 	logger logrus.FieldLogger
 }
 
-func NewCLI(c *config.Config, logger logrus.FieldLogger) (*CLI, error) {
-	database, err := db.NewDatabase(c, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	defer database.Close()
-
-	return &CLI{db: database, logger: logger}, nil
+func NewCLI(c *config.Config, logger logrus.FieldLogger, database *db.Database) *CLI {
+	return &CLI{db: database, logger: logger}
 }
 
 func (c *CLI) Run() {}
