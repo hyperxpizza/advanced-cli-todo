@@ -3,6 +3,7 @@ package runner
 import (
 	"sync"
 
+	"github.com/hyperxpizza/advanced-cli-todo/internal/api"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
 	"github.com/sirupsen/logrus"
 )
@@ -47,13 +48,25 @@ func (r *Runner) RunInDefaultMode() {
 
 //Running only cli
 func (r *Runner) RunCli() error {
+	r.logger.Info("Starting CLI mode...")
 	return nil
 }
 
 //Running only api
 func (r *Runner) RunAPI() error {
+	r.logger.Info("Starting API mode...")
+	a, err := api.NewAPI(r.c, r.logger)
+	if err != nil {
+		r.logger.Error(err)
+		return err
+	}
+
+	//start the api server
+	a.Run()
+
 	return nil
 }
 
 func (r *Runner) Close() {
+
 }
