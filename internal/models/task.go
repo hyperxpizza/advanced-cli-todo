@@ -12,3 +12,7 @@ type Task struct {
 	Created     time.Time `json:"created"`
 	Updated     time.Time `json:"updated"`
 }
+
+func NewTask(title, description string, done bool, priority int, due *time.Time) {
+	return
+}
