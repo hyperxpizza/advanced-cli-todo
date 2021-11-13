@@ -47,17 +47,25 @@ func (r *Runner) RunInDefaultMode() {
 	}()
 
 	go func() {
-		r.RunCli()
+		if err := r.RunCli(); err != nil {
+			r.wg.Done()
+		}
+
 	}()
 
 	r.wg.Wait()
 }
 
 //Running only cli
-func (r *Runner) RunCli() {
+func (r *Runner) RunCli() error {
 	r.logger.Info("Starting CLI mode...")
 	c := cli.NewCLI(r.c, r.logger, r.db)
-	c.Run()
+	err := c.Run()
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 //Running only api

@@ -24,7 +24,6 @@ func (a *API) AddTaskHandler(c *gin.Context) {
 	}
 
 	//validate
-
 }
 
 func (a *API) GetTaskByIDHandler(c *gin.Context) {}
