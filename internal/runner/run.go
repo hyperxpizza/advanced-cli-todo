@@ -50,7 +50,7 @@ func (r *Runner) RunInDefaultMode() {
 //Running only cli
 func (r *Runner) RunCli() error {
 	r.logger.Info("Starting CLI mode...")
-	c, err := cli.NewCLI(r.c)
+	c, err := cli.NewCLI(r.c, r.logger)
 	if err != nil {
 		r.logger.Error(err)
 	}
