@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/hyperxpizza/advanced-cli-todo/internal/api"
+	"github.com/hyperxpizza/advanced-cli-todo/internal/cli"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
 	"github.com/sirupsen/logrus"
 )
@@ -49,6 +50,12 @@ func (r *Runner) RunInDefaultMode() {
 //Running only cli
 func (r *Runner) RunCli() error {
 	r.logger.Info("Starting CLI mode...")
+	c, err := cli.NewCLI(r.c)
+	if err != nil {
+		r.logger.Error(err)
+	}
+
+	c.Run()
 	return nil
 }
 

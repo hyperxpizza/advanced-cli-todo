@@ -1,8 +1,6 @@
 package cli
 
 import (
-	"flag"
-
 	"github.com/hyperxpizza/advanced-cli-todo/internal/common"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/db"
@@ -24,7 +22,4 @@ func NewCLI(c *config.Config) (*CLI, error) {
 	return &CLI{db: database}, nil
 }
 
-func Run() {
-	flag.Parse()
-	printFlags()
-}
+func (c *CLI) Run() {}
