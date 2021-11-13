@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/hyperxpizza/advanced-cli-todo/internal/cli"
+	"fmt"
 )
 
 func main() {
-	cli.Run()
+	fmt.Println("running")
 }
