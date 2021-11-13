@@ -28,7 +28,7 @@ func (r *Runner) RunInDefaultMode() {
 	r.wg.Add(2)
 
 	go func() {
-		err := r.RunCli()
+		err := r.RunAPI()
 		if err != nil {
 			r.wg.Done()
 			return
@@ -36,7 +36,7 @@ func (r *Runner) RunInDefaultMode() {
 	}()
 
 	go func() {
-		err := r.RunAPI()
+		err := r.RunCli()
 		if err != nil {
 			r.wg.Done()
 			return
