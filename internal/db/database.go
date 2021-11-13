@@ -20,6 +20,7 @@ type Database struct {
 	mutex  sync.Mutex
 }
 
+//Initializes a new Database object, creates the file is does not exis and fills the schema
 func NewDatabase(c *config.Config, logger logrus.FieldLogger) (*Database, error) {
 	logger.Debug("Initializing a new database connection")
 

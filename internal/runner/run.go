@@ -4,69 +4,72 @@ import (
 	"sync"
 
 	"github.com/hyperxpizza/advanced-cli-todo/internal/api"
+	"github.com/hyperxpizza/advanced-cli-todo/internal/cli"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
+	"github.com/hyperxpizza/advanced-cli-todo/internal/db"
 	"github.com/sirupsen/logrus"
 )
 
 type Runner struct {
-	wg     sync.WaitGroup
-	c      *config.Config
-	logger logrus.FieldLogger
+	wg              sync.WaitGroup
+	c               *config.Config
+	logger          logrus.FieldLogger
+	db              *db.Database
+	closeApiChannel chan bool
+	closeCLiChannel chan bool
 }
 
-func NewRunner(c *config.Config, logger logrus.FieldLogger) *Runner {
-	return &Runner{
-		wg:     sync.WaitGroup{},
-		c:      c,
-		logger: logger,
+func NewRunner(c *config.Config, logger logrus.FieldLogger) (*Runner, error) {
+
+	database, err := db.NewDatabase(c, logger)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
 	}
+
+	return &Runner{
+		wg:              sync.WaitGroup{},
+		c:               c,
+		logger:          logger,
+		db:              database,
+		closeApiChannel: make(chan bool),
+		closeCLiChannel: make(chan bool),
+	}, nil
 }
 
 //Running both api and cli
 func (r *Runner) RunInDefaultMode() {
 	r.wg = sync.WaitGroup{}
-	r.wg.Add(2)
 
+	r.wg.Add(1)
 	go func() {
-		err := r.RunCli()
-		if err != nil {
-			r.wg.Done()
-			return
-		}
+		r.RunAPI()
 	}()
 
 	go func() {
-		err := r.RunAPI()
-		if err != nil {
-			r.wg.Done()
-			return
-		}
+		r.RunCli()
 	}()
 
 	r.wg.Wait()
 }
 
 //Running only cli
-func (r *Runner) RunCli() error {
+func (r *Runner) RunCli() {
 	r.logger.Info("Starting CLI mode...")
-	return nil
+	c := cli.NewCLI(r.c, r.logger, r.db)
+	c.Run()
 }
 
 //Running only api
-func (r *Runner) RunAPI() error {
+func (r *Runner) RunAPI() {
 	r.logger.Info("Starting API mode...")
-	a, err := api.NewAPI(r.c, r.logger)
-	if err != nil {
-		r.logger.Error(err)
-		return err
-	}
-
+	a := api.NewAPI(r.c, r.logger, r.db)
 	//start the api server
 	a.Run()
-
-	return nil
 }
 
 func (r *Runner) Close() {
-
+	r.logger.Println("Exiting runner")
+	r.wg.Done()
+	r.wg.Done()
 }

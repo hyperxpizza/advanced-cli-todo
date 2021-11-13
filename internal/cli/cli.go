@@ -1,30 +1,18 @@
 package cli
 
 import (
-	"flag"
-
-	"github.com/hyperxpizza/advanced-cli-todo/internal/common"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/db"
+	"github.com/sirupsen/logrus"
 )
 
 type CLI struct {
-	db *db.Database
+	db     *db.Database
+	logger logrus.FieldLogger
 }
 
-func NewCLI(c *config.Config) (*CLI, error) {
-	logger := common.NewLogger(*loglevel)
-	database, err := db.NewDatabase(c, logger)
-	if err != nil {
-		return nil, err
-	}
-
-	defer database.Close()
-
-	return &CLI{db: database}, nil
+func NewCLI(c *config.Config, logger logrus.FieldLogger, database *db.Database) *CLI {
+	return &CLI{db: database, logger: logger}
 }
 
-func Run() {
-	flag.Parse()
-	printFlags()
-}
+func (c *CLI) Run() {}

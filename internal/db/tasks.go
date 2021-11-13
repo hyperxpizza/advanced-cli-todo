@@ -1,6 +1,7 @@
 package db
 
 import (
+	"database/sql"
 	"time"
 
 	"github.com/hyperxpizza/advanced-cli-todo/internal/models"
@@ -15,11 +16,11 @@ func (db *Database) InsertTask(title, description string, priority int, due *tim
 	}
 
 	db.mutex.Lock()
+	defer db.mutex.Unlock()
 	res, err := stmt.Exec(title, description, false, priority, due, time.Now(), time.Now())
 	if err != nil {
 		return 0, err
 	}
-	db.mutex.Unlock()
 
 	id, err := res.LastInsertId()
 	if err != nil {
@@ -29,8 +30,31 @@ func (db *Database) InsertTask(title, description string, priority int, due *tim
 	return id, nil
 }
 
-func (db *Database) GetTaskByID() (*models.Task, error) {
+func (db *Database) GetTaskByID(id int) (*models.Task, error) {
 	var task models.Task
+
+	db.mutex.Lock()
+	defer db.mutex.Unlock()
+	due := sql.NullTime{}
+	err := db.db.QueryRow(`select * from tasks where id = $1`).Scan(
+		&task.ID,
+		&task.Title,
+		&task.Description,
+		&task.Done,
+		&task.Priority,
+		&due,
+		&task.Created,
+		&task.Updated,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	if due.Valid {
+		task.DueDate = &due.Time
+	} else {
+		task.DueDate = nil
+	}
 
 	return &task, nil
 }

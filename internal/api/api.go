@@ -14,21 +14,14 @@ type API struct {
 }
 
 //Initializes and returns a new API structure
-func NewAPI(c *config.Config, logger logrus.FieldLogger) (*API, error) {
+func NewAPI(c *config.Config, logger logrus.FieldLogger, db *db.Database) *API {
 	var api API
-
-	db, err := db.NewDatabase(c, logger)
-	if err != nil {
-		logger.Error(err)
-		return nil, err
-	}
-
 	api.db = db
 	api.c = c
 	api.logger = logger
 	api.CloseChannel = make(chan bool)
 
-	return &api, nil
+	return &api
 }
 
 //Runs the API router
