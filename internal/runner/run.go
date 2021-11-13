@@ -1,39 +1,59 @@
 package runner
 
-import "sync"
+import (
+	"sync"
 
-var wg sync.WaitGroup
+	"github.com/hyperxpizza/advanced-cli-todo/internal/config"
+	"github.com/sirupsen/logrus"
+)
+
+type Runner struct {
+	wg     sync.WaitGroup
+	c      *config.Config
+	logger logrus.FieldLogger
+}
+
+func NewRunner(c *config.Config, logger logrus.FieldLogger) *Runner {
+	return &Runner{
+		wg:     sync.WaitGroup{},
+		c:      c,
+		logger: logger,
+	}
+}
 
 //Running both api and cli
-func RunInDefaultMode() {
-	wg = sync.WaitGroup{}
-	wg.Add(2)
+func (r *Runner) RunInDefaultMode() {
+	r.wg = sync.WaitGroup{}
+	r.wg.Add(2)
 
 	go func() {
-		err := RunCli()
+		err := r.RunCli()
 		if err != nil {
-			wg.Done()
+			r.wg.Done()
 			return
 		}
 	}()
 
 	go func() {
-		err := RunAPI()
+		err := r.RunAPI()
 		if err != nil {
-			wg.Done()
+			r.wg.Done()
 			return
 		}
 	}()
 
-	wg.Wait()
+	r.wg.Wait()
 }
 
 //Running only cli
-func RunCli() error {
+func (r *Runner) RunCli() error {
 	return nil
 }
 
 //Running only api
-func RunAPI() error {
+func (r *Runner) RunAPI() error {
 	return nil
+}
+
+func (r *Runner) Close() {
 }

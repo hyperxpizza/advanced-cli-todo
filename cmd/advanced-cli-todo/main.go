@@ -29,13 +29,16 @@ func main() {
 		os.Exit(1)
 	}
 
+	r := runner.NewRunner(c, logger)
+	defer r.Close()
+
 	switch *mode {
 	case "default":
-		runner.RunInDefaultMode()
+		r.RunInDefaultMode()
 	case "web":
-		runner.RunAPI()
+		r.RunAPI()
 	case "cli":
-		runner.RunCli()
+		r.RunCli()
 	default:
 		logger.Errorf("Mode: %s unknown! Aborting...", *mode)
 		runtime.Goexit()
