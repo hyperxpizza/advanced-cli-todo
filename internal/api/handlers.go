@@ -64,7 +64,19 @@ func (a *API) UpdateDoneHandler(c *gin.Context) {
 		return
 	}
 
-	err = a.db.UpdateDone(id, true)
+	doneQuery := c.Query("done")
+	var done bool
+	switch doneQuery {
+	case "true":
+		done = true
+	case "false":
+		done = false
+	default:
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	err = a.db.UpdateDone(id, done)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			c.Status(http.StatusNotFound)
