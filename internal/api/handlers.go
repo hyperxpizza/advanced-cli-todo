@@ -17,10 +17,26 @@ func (a *API) AddTaskHandler(c *gin.Context) {
 		return
 	}
 
-	//validate
-	if err := validator.ValidateNewTask(); err != nil {
-		c.Status()
+	//validate the new task
+	if err := validator.ValidateNewTask(newTask); err != nil {
+		c.JSON(http.StatusNotAcceptable, gin.H{
+			"message": err.Error(),
+		})
+		return
 	}
+
+	//insert it into the database
+	id, err := a.db.InsertTask(newTask)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+	}
+
+	c.JSON(http.StatusCreated, gin.H{
+		"id": id,
+	})
+	return
 }
 
 func (a *API) GetTaskByIDHandler(c *gin.Context) {}

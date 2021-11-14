@@ -8,8 +8,8 @@ import (
 )
 
 // Inserting a new task into the sqlite databas
-func (db *Database) InsertTask(title, description string, priority int, due *time.Time) (int64, error) {
-	db.logger.Debugf("Inserting a new task with title: %s", title)
+func (db *Database) InsertTask(t models.NewTaskRequest) (int64, error) {
+	db.logger.Debugf("Inserting a new task with title: %s", t.Title)
 	stmt, err := db.db.Prepare(`insert into tasks(id, title, description, priority, dueDate, created, updated) values(DEFAULT, $1, $2, $3, $4, $5, $6, $7)`)
 	if err != nil {
 		return 0, err
@@ -17,7 +17,7 @@ func (db *Database) InsertTask(title, description string, priority int, due *tim
 
 	db.mutex.Lock()
 
-	res, err := stmt.Exec(title, description, false, priority, due, time.Now(), time.Now())
+	res, err := stmt.Exec(t.Title, t.Description, false, t.Priority, t.DueDate, time.Now(), time.Now())
 	if err != nil {
 		return 0, err
 	}
