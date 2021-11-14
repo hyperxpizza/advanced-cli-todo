@@ -13,7 +13,9 @@ func (a *API) AddTaskHandler(c *gin.Context) {
 	var newTask models.NewTaskRequest
 	//unmarshal json into struct
 	if err := c.ShouldBindJSON(&newTask); err != nil {
-		c.Status(http.StatusBadRequest)
+		c.JSON(http.StatusBadRequest, gin.H{
+			"message": err.Error(),
+		})
 		return
 	}
 
@@ -31,6 +33,7 @@ func (a *API) AddTaskHandler(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"message": err.Error(),
 		})
+		return
 	}
 
 	c.JSON(http.StatusCreated, gin.H{

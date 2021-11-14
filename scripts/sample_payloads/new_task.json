@@ -1,0 +1,6 @@
+{
+    "title":       "Create a new cli application",
+	"description": "A task to create an advanced cli todo list",
+    "priority": 5,
+    "dueDate": "2021-11-23T15:04:05"
+}
