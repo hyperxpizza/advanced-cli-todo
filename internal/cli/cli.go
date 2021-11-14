@@ -12,28 +12,37 @@ import (
 type CLI struct {
 	db     *db.Database
 	logger logrus.FieldLogger
+	gui    *gocui.Gui
 }
 
-func NewCLI(c *config.Config, logger logrus.FieldLogger, database *db.Database) *CLI {
-	return &CLI{db: database, logger: logger}
+func NewCLI(c *config.Config, logger logrus.FieldLogger, database *db.Database) (*CLI, error) {
+	gui, err := gocui.NewGui(gocui.OutputNormal)
+	if err != nil {
+		logger.Error(err)
+		return nil, err
+	}
+
+	return &CLI{db: database, logger: logger, gui: gui}, nil
 }
 
 func (c *CLI) Run() error {
-	gui, err := gocui.NewGui(gocui.OutputNormal)
-	if err != nil {
-		c.logger.Error(err)
+
+	defer c.gui.Close()
+
+	c.gui.SetManagerFunc(layout)
+	if err := c.setKeyBindings(); err != nil {
 		return err
 	}
 
-	defer gui.Close()
-
-	gui.SetManagerFunc(layout)
-
-	if err := gui.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
+	if err := c.gui.MainLoop(); err != nil && err != gocui.ErrQuit {
 		return err
 	}
 
-	if err := gui.MainLoop(); err != nil && err != gocui.ErrQuit {
+	return nil
+}
+
+func (c *CLI) setKeyBindings() error {
+	if err := c.gui.SetKeybinding("", gocui.KeyCtrlC, gocui.ModNone, quit); err != nil {
 		return err
 	}
 

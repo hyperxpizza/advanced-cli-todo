@@ -43,14 +43,15 @@ func (r *Runner) RunInDefaultMode() {
 
 	r.wg.Add(1)
 	go func() {
-		r.RunAPI()
+		if err := r.RunAPI(); err != nil {
+			r.wg.Done()
+		}
 	}()
 
 	go func() {
 		if err := r.RunCli(); err != nil {
 			r.wg.Done()
 		}
-
 	}()
 
 	r.wg.Wait()
@@ -59,8 +60,11 @@ func (r *Runner) RunInDefaultMode() {
 //Running only cli
 func (r *Runner) RunCli() error {
 	r.logger.Info("Starting CLI mode...")
-	c := cli.NewCLI(r.c, r.logger, r.db)
-	err := c.Run()
+	c, err := cli.NewCLI(r.c, r.logger, r.db)
+	if err != nil {
+		return err
+	}
+	err = c.Run()
 	if err != nil {
 		return err
 	}
@@ -69,11 +73,13 @@ func (r *Runner) RunCli() error {
 }
 
 //Running only api
-func (r *Runner) RunAPI() {
+func (r *Runner) RunAPI() error {
 	r.logger.Info("Starting API mode...")
 	a := api.NewAPI(r.c, r.logger, r.db)
 	//start the api server
 	a.Run()
+
+	return nil
 }
 
 func (r *Runner) Close() {
