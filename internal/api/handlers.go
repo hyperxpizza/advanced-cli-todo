@@ -2,21 +2,15 @@ package api
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/hyperxpizza/advanced-cli-todo/internal/models"
+	"github.com/hyperxpizza/advanced-cli-todo/internal/validator"
 )
-
-type NewTaskRequest struct {
-	Title       string    `json:"title"`
-	Description string    `json:"description"`
-	Priority    int       `json:"priority"`
-	DueDate     time.Time `json:"dueDate"`
-}
 
 //Inserts a new task into the database
 func (a *API) AddTaskHandler(c *gin.Context) {
-	var newTask NewTaskRequest
+	var newTask models.NewTaskRequest
 	//unmarshal json into struct
 	if err := c.ShouldBindJSON(&newTask); err != nil {
 		c.Status(http.StatusBadRequest)
@@ -24,6 +18,9 @@ func (a *API) AddTaskHandler(c *gin.Context) {
 	}
 
 	//validate
+	if err := validator.ValidateNewTask(); err != nil {
+		c.Status()
+	}
 }
 
 func (a *API) GetTaskByIDHandler(c *gin.Context) {}

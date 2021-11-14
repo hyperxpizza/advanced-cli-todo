@@ -11,7 +11,13 @@ import (
 )
 
 func TestValidateNewTask(t *testing.T) {
-	task := models.NewTask(1, "Create a new cli application", "A task to create an advanced cli todo list", false, 10, time.Now().Add(time.Hour*168), time.Now(), time.Now())
+
+	task := models.NewTaskRequest{
+		Title:       "Create a new cli application",
+		Description: "A task to create an advanced cli todo list",
+		Priority:    10,
+		DueDate:     time.Now().Add(time.Hour * 168),
+	}
 
 	t.Run("Validate Task OK", func(t *testing.T) {
 		err := validator.ValidateNewTask(task)

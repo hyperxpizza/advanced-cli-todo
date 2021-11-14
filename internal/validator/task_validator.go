@@ -8,7 +8,7 @@ import (
 )
 
 //Validates a new task
-func ValidateNewTask(t models.Task) error {
+func ValidateNewTask(t models.NewTaskRequest) error {
 	var isTitleValid = regexp.MustCompile(`^(\S|\S.{0,100}\S)$`).MatchString
 	if !isTitleValid(t.Title) {
 		return customErrors.Wrap(customErrors.ErrTaskTitleNotValid)
