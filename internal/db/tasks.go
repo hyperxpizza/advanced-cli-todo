@@ -36,7 +36,7 @@ func (db *Database) GetTaskByID(id int) (*models.Task, error) {
 	db.mutex.Lock()
 
 	due := sql.NullTime{}
-	err := db.db.QueryRow(`select * from tasks where id = $1`).Scan(
+	err := db.db.QueryRow(`select * from tasks where id = $1`, id).Scan(
 		&task.ID,
 		&task.Title,
 		&task.Description,

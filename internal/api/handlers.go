@@ -44,7 +44,30 @@ func (a *API) AddTaskHandler(c *gin.Context) {
 	})
 }
 
-func (a *API) GetTaskByIDHandler(c *gin.Context) {}
+//Gets a task by provided ID
+func (a *API) GetTaskByIDHandler(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	task, err := a.db.GetTaskByID(id)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, &task)
+}
 
 //Gets all tasks from the database
 //Query - orderby
