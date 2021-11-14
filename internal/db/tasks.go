@@ -16,13 +16,11 @@ func (db *Database) InsertTask(t models.NewTaskRequest) (int64, error) {
 	}
 
 	db.mutex.Lock()
-
 	res, err := stmt.Exec(t.Title, t.Description, false, t.Priority, t.DueDate, time.Now(), time.Now())
+	db.mutex.Unlock()
 	if err != nil {
 		return 0, err
 	}
-
-	db.mutex.Unlock()
 
 	id, err := res.LastInsertId()
 	if err != nil {
@@ -48,11 +46,10 @@ func (db *Database) GetTaskByID(id int) (*models.Task, error) {
 		&task.Created,
 		&task.Updated,
 	)
+	db.mutex.Unlock()
 	if err != nil {
 		return nil, err
 	}
-
-	db.mutex.Unlock()
 
 	if due.Valid {
 		task.DueDate = due.Time
@@ -66,13 +63,11 @@ func (db *Database) GetAllTasks(order string) ([]*models.Task, error) {
 	var tasks []*models.Task
 
 	db.mutex.Lock()
-
 	rows, err := db.db.Query(`select * from tasks`)
+	db.mutex.Unlock()
 	if err != nil {
 		return nil, err
 	}
-
-	db.mutex.Unlock()
 
 	for rows.Next() {
 		due := sql.NullTime{}
@@ -101,7 +96,20 @@ func (db *Database) GetAllTasks(order string) ([]*models.Task, error) {
 	return tasks, nil
 }
 
-func (db *Database) MarkTaskAsDone(id int) error {
+func (db *Database) UpdateDone(id int, done bool) error {
+
+	stmt, err := db.db.Prepare(`update tasks set done = $1 where id = $2`)
+	if err != nil {
+		return err
+	}
+
+	db.mutex.Lock()
+	_, err = stmt.Exec(done, id)
+	db.mutex.Unlock()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 

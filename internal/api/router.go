@@ -20,6 +20,7 @@ func (a *API) setupAndRunRouter(c *config.Config) {
 		tasks.POST("", a.AddTaskHandler)
 		tasks.GET("", a.GetAllTasksHandler)
 		tasks.GET("/:id", a.GetTaskByIDHandler)
+		tasks.PUT("/:id/done", a.UpdateDoneHandler)
 	}
 
 	search := router.Group("/api/v1/search")

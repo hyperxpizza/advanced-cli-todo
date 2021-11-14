@@ -1,7 +1,10 @@
 package api
 
 import (
+	"database/sql"
+	"errors"
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/hyperxpizza/advanced-cli-todo/internal/models"
@@ -39,7 +42,6 @@ func (a *API) AddTaskHandler(c *gin.Context) {
 	c.JSON(http.StatusCreated, gin.H{
 		"id": id,
 	})
-	return
 }
 
 func (a *API) GetTaskByIDHandler(c *gin.Context) {}
@@ -52,3 +54,28 @@ func (a *API) GetAllTasksHandler(c *gin.Context) {}
 //Full text search to get tasks
 //Query ?q
 func (a *API) SearchTasksHandler(c *gin.Context) {}
+
+//Updates the done state of the task with provided id
+func (a *API) UpdateDoneHandler(c *gin.Context) {
+	idParam := c.Param("id")
+	id, err := strconv.Atoi(idParam)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	err = a.db.UpdateDone(id, true)
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(),
+		})
+		return
+	}
+
+	c.Status(http.StatusOK)
+}
