@@ -3,8 +3,9 @@ package customErrors
 import "errors"
 
 const (
-	ErrFileNotFound = "File was not found"
-	ErrTaskNotValid = "The task is not valid"
+	ErrFileNotFound         = "File was not found"
+	ErrTaskTitleNotValid    = "The task title is not valid"
+	ErrTaskPriorityNotValid = "The task priority is not valid"
 )
 
 //Wraps a predefiined message and returns it as a new error
