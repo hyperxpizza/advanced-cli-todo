@@ -70,9 +70,53 @@ func (a *API) GetTaskByIDHandler(c *gin.Context) {
 }
 
 //Gets all tasks from the database
-//Query - orderby
-//
-func (a *API) GetAllTasksHandler(c *gin.Context) {}
+//Query - orderby, limit, offset
+func (a *API) GetAllTasksHandler(c *gin.Context) {
+	limit := c.Query("limit")
+	offset := c.Query("offset")
+	orderby := c.Query("orderby")
+
+	if limit == "" && offset == "" && orderby == "" {
+		tasks, err := a.db.GetAllTasks()
+		if err != nil {
+			if errors.Is(err, sql.ErrNoRows) {
+				c.Status(http.StatusNotFound)
+				return
+			}
+
+			c.Status(http.StatusInternalServerError)
+			return
+		}
+
+		c.JSON(http.StatusOK, tasks)
+	}
+
+	limitInt, err := strconv.Atoi(limit)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	offsetInt, err := strconv.Atoi(offset)
+	if err != nil {
+		c.Status(http.StatusBadRequest)
+		return
+	}
+
+	tasks, err := a.db.GetTasksWithFilter(limitInt, offsetInt, orderby, "desc")
+	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			c.Status(http.StatusNotFound)
+			return
+		}
+
+		c.Status(http.StatusInternalServerError)
+		return
+	}
+
+	c.JSON(http.StatusOK, tasks)
+
+}
 
 //Full text search to get tasks
 //Query ?q

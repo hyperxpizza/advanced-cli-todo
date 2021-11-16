@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"time"
 
 	"github.com/hyperxpizza/advanced-cli-todo/internal/models"
@@ -59,15 +60,47 @@ func (db *Database) GetTaskByID(id int) (*models.Task, error) {
 }
 
 //Selects all the tasks from the database
-func (db *Database) GetAllTasks(order string) ([]*models.Task, error) {
-	var tasks []*models.Task
-
+func (db *Database) GetAllTasks() ([]*models.Task, error) {
 	db.mutex.Lock()
 	rows, err := db.db.Query(`select * from tasks`)
 	db.mutex.Unlock()
 	if err != nil {
 		return nil, err
 	}
+
+	return db.getTasksFromRows(rows)
+}
+
+func (db *Database) GetTasksWithFilter(limit, offset int, orderby string) ([]*models.Task, error) {
+	baseQuery := "select * from tasks"
+	if limit > 0 {
+		baseQuery = baseQuery + fmt.Sprintf(" limit %d", limit)
+	}
+
+	if offset > 0 {
+		baseQuery = baseQuery + fmt.Sprintf("  offset %d", offset)
+	}
+
+	if orderby != "" {
+		baseQuery = baseQuery + fmt.Sprintf("orderby %s", orderby)
+	}
+
+	stmt, err := db.db.Prepare(baseQuery)
+	if err != nil {
+		return nil, err
+	}
+	db.mutex.Lock()
+	rows, err := stmt.Query()
+	db.mutex.Unlock()
+	if err != nil {
+		return nil, err
+	}
+
+	return db.getTasksFromRows(rows)
+}
+
+func (db *Database) getTasksFromRows(rows *sql.Rows) ([]*models.Task, error) {
+	var tasks []*models.Task
 
 	for rows.Next() {
 		due := sql.NullTime{}
