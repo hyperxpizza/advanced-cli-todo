@@ -146,6 +146,34 @@ func (db *Database) UpdateDone(id int, done bool) error {
 	return nil
 }
 
-func (db *Database) DeleteTask() error {
+func (db *Database) DeleteTask(id int) error {
+	stmt, err := db.db.Prepare(`delete from tasks where id=$1`)
+	if err != nil {
+		return err
+	}
+
+	db.mutex.Lock()
+	_, err = stmt.Exec(id)
+	db.mutex.Unlock()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) DeleteDoneTasks() error {
+	stmt, err := db.db.Prepare(`delete from tasks where done=true`)
+	if err != nil {
+		return err
+	}
+
+	db.mutex.Lock()
+	_, err = stmt.Exec()
+	db.mutex.Unlock()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
