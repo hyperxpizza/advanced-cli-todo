@@ -82,7 +82,7 @@ func (db *Database) GetTasksWithFilter(limit, offset int, orderby, t string) ([]
 	}
 
 	if orderby != "" {
-		baseQuery = baseQuery + fmt.Sprintf("order by %s %s", orderby)
+		baseQuery = baseQuery + fmt.Sprintf("order by %s %s", orderby, t)
 	}
 
 	stmt, err := db.db.Prepare(baseQuery)
@@ -176,4 +176,20 @@ func (db *Database) DeleteDoneTasks() error {
 	}
 
 	return nil
+}
+
+func (db *Database) SearchTasks(query, orderby, t string) ([]*models.Task, error) {
+	stmt, err := db.db.Prepare(`select * from tasks where tasks match $1 orderby $2 $3`)
+	if err != nil {
+		return nil, err
+	}
+
+	db.mutex.Lock()
+	rows, err := stmt.Query(query, orderby, t)
+	db.mutex.Unlock()
+	if err != nil {
+		return nil, err
+	}
+
+	return db.getTasksFromRows(rows)
 }
