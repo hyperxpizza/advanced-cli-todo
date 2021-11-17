@@ -71,7 +71,7 @@ func (db *Database) GetAllTasks() ([]*models.Task, error) {
 	return db.getTasksFromRows(rows)
 }
 
-func (db *Database) GetTasksWithFilter(limit, offset int, orderby string) ([]*models.Task, error) {
+func (db *Database) GetTasksWithFilter(limit, offset int, orderby, t string) ([]*models.Task, error) {
 	baseQuery := "select * from tasks"
 	if limit > 0 {
 		baseQuery = baseQuery + fmt.Sprintf(" limit %d", limit)
@@ -82,7 +82,7 @@ func (db *Database) GetTasksWithFilter(limit, offset int, orderby string) ([]*mo
 	}
 
 	if orderby != "" {
-		baseQuery = baseQuery + fmt.Sprintf("orderby %s", orderby)
+		baseQuery = baseQuery + fmt.Sprintf("order by %s %s", orderby)
 	}
 
 	stmt, err := db.db.Prepare(baseQuery)
