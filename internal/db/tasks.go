@@ -71,7 +71,7 @@ func (db *Database) GetAllTasks() ([]*models.Task, error) {
 	return db.getTasksFromRows(rows)
 }
 
-func (db *Database) GetTasksWithFilter(limit, offset int, orderby string) ([]*models.Task, error) {
+func (db *Database) GetTasksWithFilter(limit, offset int, orderby, t string) ([]*models.Task, error) {
 	baseQuery := "select * from tasks"
 	if limit > 0 {
 		baseQuery = baseQuery + fmt.Sprintf(" limit %d", limit)
@@ -82,7 +82,7 @@ func (db *Database) GetTasksWithFilter(limit, offset int, orderby string) ([]*mo
 	}
 
 	if orderby != "" {
-		baseQuery = baseQuery + fmt.Sprintf("orderby %s", orderby)
+		baseQuery = baseQuery + fmt.Sprintf("order by %s %s", orderby, t)
 	}
 
 	stmt, err := db.db.Prepare(baseQuery)
@@ -146,6 +146,50 @@ func (db *Database) UpdateDone(id int, done bool) error {
 	return nil
 }
 
-func (db *Database) DeleteTask() error {
+func (db *Database) DeleteTask(id int) error {
+	stmt, err := db.db.Prepare(`delete from tasks where id=$1`)
+	if err != nil {
+		return err
+	}
+
+	db.mutex.Lock()
+	_, err = stmt.Exec(id)
+	db.mutex.Unlock()
+	if err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (db *Database) DeleteDoneTasks() error {
+	stmt, err := db.db.Prepare(`delete from tasks where done=true`)
+	if err != nil {
+		return err
+	}
+
+	db.mutex.Lock()
+	_, err = stmt.Exec()
+	db.mutex.Unlock()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (db *Database) SearchTasks(query, orderby, t string) ([]*models.Task, error) {
+	stmt, err := db.db.Prepare(`select * from tasks where tasks match $1 orderby $2 $3`)
+	if err != nil {
+		return nil, err
+	}
+
+	db.mutex.Lock()
+	rows, err := stmt.Query(query, orderby, t)
+	db.mutex.Unlock()
+	if err != nil {
+		return nil, err
+	}
+
+	return db.getTasksFromRows(rows)
 }
